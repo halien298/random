@@ -1,0 +1,268 @@
+--// Aimbot GUI + Dropdowns + Big Aim Circle targeting players inside it
+
+local players = game:GetService("Players")
+local run = game:GetService("RunService")
+local uis = game:GetService("UserInputService")
+local lp = players.LocalPlayer
+local cam = workspace.CurrentCamera
+
+local aiming = false
+local smoothness = 0.01
+local hitboxName = "Head"
+local aimMode = "Crosshair"
+local prediction = 0.12
+local predictionDistance = 34
+local circleRadius = 150 -- Big aim circle radius
+
+---------------------------------------------------------
+-- GUI
+---------------------------------------------------------
+
+local gui = Instance.new("ScreenGui")
+gui.Parent = game.CoreGui
+gui.Enabled = false
+
+local Main = Instance.new("Frame")
+Main.Size = UDim2.new(0, 320, 0, 260)
+Main.Position = UDim2.new(0.5, -160, 0.5, -130)
+Main.BackgroundColor3 = Color3.fromRGB(27, 27, 27)
+Main.BorderSizePixel = 0
+Main.Active = true
+Main.Draggable = true
+Main.Parent = gui
+
+-- Header
+local Header = Instance.new("Frame")
+Header.Size = UDim2.new(1, 0, 0, 28)
+Header.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+Header.BorderSizePixel = 0
+Header.Parent = Main
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -8, 1, 0)
+Title.Position = UDim2.new(0, 4, 0, 0)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.Code
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Text = "Project Delta Aimbot v1.0"
+Title.TextSize = 16
+Title.TextColor3 = Color3.fromRGB(0, 170, 255)
+Title.Parent = Header
+
+-- Dropdown button function
+local function dropdown(parent, y, labelText, options, default)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0, 100, 0, 24)
+    label.Position = UDim2.new(0, 8, 0, y)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.Code
+    label.TextSize = 14
+    label.Text = labelText
+    label.TextColor3 = Color3.fromRGB(200, 200, 200)
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Parent = parent
+
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0, 120, 0, 22)
+    btn.Position = UDim2.new(0, 110, 0, y)
+    btn.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
+    btn.BorderColor3 = Color3.fromRGB(70, 70, 70)
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 14
+    btn.Text = default
+    btn.Parent = parent
+
+    local expanded = false
+    local optionButtons = {}
+
+    btn.MouseButton1Click:Connect(function()
+        expanded = not expanded
+        if expanded then
+            for i, opt in ipairs(options) do
+                local b = Instance.new("TextButton")
+                b.Size = UDim2.new(0, 120, 0, 20)
+                b.Position = UDim2.new(0, 110, 0, y + 22 * i)
+                b.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+                b.BorderColor3 = Color3.fromRGB(70, 70, 70)
+                b.TextColor3 = Color3.fromRGB(255, 255, 255)
+                b.Font = Enum.Font.Code
+                b.TextSize = 14
+                b.Text = opt
+                b.Parent = parent
+                table.insert(optionButtons, b)
+
+                b.MouseButton1Click:Connect(function()
+                    btn.Text = opt
+                    expanded = false
+                    for _, ob in ipairs(optionButtons) do
+                        ob:Destroy()
+                    end
+                    optionButtons = {}
+                end)
+            end
+        else
+            for _, ob in ipairs(optionButtons) do
+                ob:Destroy()
+            end
+            optionButtons = {}
+        end
+    end)
+
+    return btn
+end
+
+-- Dropdowns
+local aimModeBtn = dropdown(Main, 40, "Aim Mode", {"Crosshair", "Distance"}, aimMode)
+local hitboxBtn = dropdown(Main, 70, "Hitbox", {"Head", "UpperTorso", "LeftFoot"}, hitboxName)
+
+-- Sliders
+local function slider(parent, y, labelText, min, max, default)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0, 100, 0, 20)
+    lbl.Position = UDim2.new(0, 8, 0, y)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.Code
+    lbl.TextSize = 14
+    lbl.Text = labelText
+    lbl.TextColor3 = Color3.fromRGB(200, 200, 200)
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.Parent = parent
+
+    local sld = Instance.new("TextButton")
+    sld.Size = UDim2.new(0, 120, 0, 20)
+    sld.Position = UDim2.new(0, 110, 0, y)
+    sld.BackgroundColor3 = Color3.fromRGB(37, 37, 37)
+    sld.BorderColor3 = Color3.fromRGB(70, 70, 70)
+    sld.TextColor3 = Color3.fromRGB(255, 255, 255)
+    sld.Font = Enum.Font.Code
+    sld.TextSize = 14
+    sld.Text = tostring(default)
+    sld.Parent = parent
+
+    local sliding = false
+    sld.MouseButton1Down:Connect(function() sliding = true end)
+    uis.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end
+    end)
+
+    run.RenderStepped:Connect(function()
+        if sliding then
+            local X = uis:GetMouseLocation().X
+            local start = sld.AbsolutePosition.X
+            local width = sld.AbsoluteSize.X
+            local pos = math.clamp((X - start) / width, 0, 1)
+            local value = min + (max - min) * pos
+            sld.Text = string.format("%.2f", value)
+
+            if labelText == "Smoothness" then
+                smoothness = value
+            elseif labelText == "Prediction" then
+                prediction = value
+            elseif labelText == "Prediction Dist" then
+                predictionDistance = value
+            end
+        end
+    end)
+    return sld
+end
+
+slider(Main, 110, "Smoothness", 0.01, 5, smoothness)
+slider(Main, 140, "Prediction", 0.01, 1, prediction)
+slider(Main, 170, "Prediction Dist", 10, 100, predictionDistance)
+
+---------------------------------------------------------
+-- DRAWING
+---------------------------------------------------------
+
+local DrawingService = Drawing
+
+local aimCircle = DrawingService.new("Circle")
+aimCircle.Radius = circleRadius
+aimCircle.Thickness = 3
+aimCircle.Color = Color3.fromRGB(0, 170, 255)
+aimCircle.Filled = false
+aimCircle.Transparency = 1
+
+local targetLine = DrawingService.new("Line")
+targetLine.Color = Color3.fromRGB(255, 0, 0)
+targetLine.Thickness = 2
+targetLine.Transparency = 1
+
+---------------------------------------------------------
+-- TARGETING FUNCTIONS
+---------------------------------------------------------
+
+local function predicted(part)
+    local root = part.Parent:FindFirstChild("HumanoidRootPart")
+    if not root then return part.Position end
+    local distance = (root.Position - cam.CFrame.Position).Magnitude
+    if distance > predictionDistance then
+        return part.Position + root.Velocity * prediction
+    else
+        return part.Position
+    end
+end
+
+local function getPlayersInCircle()
+    local center = Vector2.new(cam.ViewportSize.X/2, cam.ViewportSize.Y/2)
+    local closest
+    local closestDist = math.huge
+
+    for _, plr in ipairs(players:GetPlayers()) do
+        if plr ~= lp and plr.Character and plr.Character:FindFirstChild(hitboxName) then
+            local part = plr.Character[hitboxName]
+            local pos = predicted(part)
+            local screenPos, visible = cam:WorldToViewportPoint(pos)
+            if visible then
+                local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+                if dist <= circleRadius and dist < closestDist then
+                    closestDist = dist
+                    closest = part
+                end
+            end
+        end
+    end
+
+    return closest
+end
+
+---------------------------------------------------------
+-- AIMBOT CORE
+---------------------------------------------------------
+
+run.RenderStepped:Connect(function()
+    aimCircle.Position = Vector2.new(cam.ViewportSize.X/2, cam.ViewportSize.Y/2)
+    aimCircle.Visible = true
+
+    local target = aiming and getPlayersInCircle()
+    if target then
+        local pos = predicted(target)
+        local dir = (pos - cam.CFrame.Position).Unit
+        cam.CFrame = cam.CFrame:Lerp(CFrame.new(cam.CFrame.Position, cam.CFrame.Position + dir), smoothness)
+
+        local screenPos, visible = cam:WorldToViewportPoint(pos)
+        if visible then
+            targetLine.From = Vector2.new(cam.ViewportSize.X/2, cam.ViewportSize.Y/2)
+            targetLine.To = Vector2.new(screenPos.X, screenPos.Y)
+            targetLine.Visible = true
+        else
+            targetLine.Visible = false
+        end
+    else
+        targetLine.Visible = false
+    end
+end)
+
+---------------------------------------------------------
+-- KEYBINDS
+---------------------------------------------------------
+
+uis.InputBegan:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton2 then aiming = true end
+    if i.KeyCode == Enum.KeyCode.Tab then gui.Enabled = not gui.Enabled end
+end)
+
+uis.InputEnded:Connect(function(i)
+    if i.UserInputType == Enum.UserInputType.MouseButton2 then aiming = false end
+end)

